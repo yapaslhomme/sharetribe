@@ -17,7 +17,7 @@
             - if reason == :image_ok
               #listing-image-link.listing-image-frame-content
                 .listing-image-vertical-centering{:class => aspect_ratio_class(listing_image) }
-                  = image_tag listing_image.image.url(:big), :alt => listed_listing_title(@listing), :class => "listing-image #{aspect_ratio_class(listing_image)}"
+                  = image_tag listing_image.image.url(:big_cropped), :alt => listed_listing_title(@listing), :class => "listing-image #{aspect_ratio_class(listing_image)}"
             - else
               .listing-image-frame-content
                 .listing-image-vertical-centering
