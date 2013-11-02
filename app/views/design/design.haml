@@ -55,8 +55,27 @@
 
     .design-component
       .design-example
-        %button
-          = "This is button"
+        .row
+          .col-4
+            %button
+              = "Normal neutral button"
+          .col-4
+            %a.button.action
+              = "Normal action button"
+          .col-4
+            %button.action2
+              = "Normal action button 2 (better name needed)"
+
+        .row
+          .col-4
+            %button.big
+              = "Big neutral button"
+          .col-4
+            %a.big.action.button
+              = "Big action button"
+          .col-4
+            %button.big.action2
+              = "Big action button 2 (better name needed)"
       .design-code
         %pre
           :plain

@@ -520,12 +520,12 @@ label.radiobutton {
   padding-bottom: em(11);
 }
 
-button, .button {
-  @include button;
-  @include media(tablet) {
-    padding: em(3) em(16) em(9) em(16);
-  }
-}
+// button, .button {
+//   @include button;
+//   @include media(tablet) {
+//     padding: em(3) em(16) em(9) em(16);
+//   }
+// }
 
 label.error {
   @include border-radius(em(5));

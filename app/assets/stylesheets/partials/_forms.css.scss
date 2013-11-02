@@ -1,0 +1,42 @@
+@import "mixins/all";
+
+button, .button {
+  @include button;
+  display: inline-block;
+  padding: 0 lines(1);
+
+  line-height: lines(1.5);
+  height: lines(1.5);
+
+  &, &.neutral {
+    color: $body;
+    background-color: $highlight;
+
+    &:hover {
+      background: darken($highlight, 5%);
+    }
+  }
+
+  &.action {
+    color: $background;
+    background-color: $link;
+
+    &:hover {
+      background: darken($link, 5%);
+    }
+  }
+
+  &.action2 {
+    color: $background;
+    background-color: $link2;
+
+    &:hover {
+      background: darken($link2, 5%);
+    }
+  }
+
+  &.big {
+    line-height: lines(2);
+    height: lines(2);
+  }
+}
