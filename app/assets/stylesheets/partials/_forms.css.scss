@@ -2,17 +2,14 @@
 
 button, .button {
   @include button;
-  display: inline-block;
-  padding: 0 lines(1);
 
-  line-height: lines(1.5);
-  height: lines(1.5);
-
+  // Colors
   &, &.neutral {
     color: $body;
     background-color: $highlight;
 
     &:hover {
+      color: $body;
       background: darken($highlight, 5%);
     }
   }
@@ -22,6 +19,7 @@ button, .button {
     background-color: $link;
 
     &:hover {
+      color: $background;
       background: darken($link, 5%);
     }
   }
@@ -31,9 +29,14 @@ button, .button {
     background-color: $link2;
 
     &:hover {
+      color: $background;
       background: darken($link2, 5%);
     }
   }
+
+  // Dimensions
+  line-height: lines(1.5);
+  height: lines(1.5);
 
   &.big {
     line-height: lines(2);

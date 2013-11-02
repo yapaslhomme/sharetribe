@@ -131,16 +131,6 @@ $listing-author-avatar-height: 108;
   line-height: em($listing-author-avatar-width, 22) / 2;
  }
 
-.listing-author-contact-button {
-  @extend .button;
-
-  height: em($listing-author-avatar-width) / 2;
-  line-height: em($listing-author-avatar-width) / 2;
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-}
-
 // Listing author activity
 
 .listing-author-activity {

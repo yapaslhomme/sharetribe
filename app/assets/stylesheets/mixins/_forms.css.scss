@@ -94,4 +94,7 @@
 @mixin button {
   @include border-radius(em(5));
   border: 0;
+  display: inline-block;
+  padding: 0 lines(1);
+  text-align: center;
 }
