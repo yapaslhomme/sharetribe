@@ -76,9 +76,10 @@
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-.design-block-background {
+.design-block-dimensions {
   min-height: lines(2);
-  @extend .design-block-background-color;
+  line-height: lines(2);
+  text-align: center;
 }
 
 .design-block-margin {
@@ -86,10 +87,9 @@
 }
 
 .design-block {
-  @extend .design-block-background;
+  @extend .design-block-dimensions;
+  @extend .design-block-background-color;
   @extend .design-block-margin;
-  line-height: lines(2);
-  text-align: center;
 }
 
 @mixin design-mq-active {
@@ -131,13 +131,14 @@
 }
 
 .col-content {
-  @extend .design-block-background;
+  @extend .design-block-dimensions;
+  @extend .design-block-background-color;
 }
 
 @include create-fluid-thumbnail-grid(design, 1, 1, 2, 2, 3, 3, 4, 5);
 
 .design-fluid-thumbnail-grid-item-content {
-  @extend .design-block-background;
+  @extend .design-block-background-color;
   width: 100%;
   text-align: center;
   width: 100%;
@@ -186,4 +187,21 @@
 
 .design-image-portrait {
   @include image-portrait;
+}
+
+.design-color-palette {
+  @extend .design-block-dimensions;
+  @extend .design-block-margin;
+  max-width: 200px;
+  height: 60px;
+}
+
+// This creates list of tuples (name and color)
+$colors: background $background, highlight $highlight, border $border, aside $aside, light-body $light-body, body $body, emphasis $emphasis, link $link, link2 $link2, green $green, red $red;
+
+@each $context in $colors {
+  .design-color-#{nth($context, 1)} {
+    @extend .design-color-palette;
+    background-color: nth($context, 2);
+  }
 }

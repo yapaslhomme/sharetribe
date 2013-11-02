@@ -36,6 +36,16 @@
             }
 
   %h2.design-h2
+    = "Colors"
+
+  .design-section
+    .design-component
+      .design-example
+        - ["background", "highlight", "border", "aside", "light-body", "body", "emphasis", "link", "link2", "green", "red"].each do |color|
+          %div{:class => "design-color-#{color}"}
+            = "$#{color}"
+
+  .design-h2
     = "Forms"
 
   .design-section
