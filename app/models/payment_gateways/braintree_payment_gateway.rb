@@ -1,5 +1,8 @@
 class BraintreePaymentGateway < PaymentGateway
-  # include Rails.application.routes.url_helpers
+
+  def can_receive_payments_for?(person, listing=nil)
+    !person.braintree_account.nil?
+  end
 
   def settings_path(person, locale)
     if person.braintree_account.blank?
