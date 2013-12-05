@@ -40,4 +40,8 @@ class PaymentGateway < ActiveRecord::Base
   def settings_path(person, locale)
     payments_person_settings_path(:person_id => person.id.to_s, :locale => locale)
   end
+
+  def new_payment_path(person, message, locale)
+    new_person_message_payment_path(:person_id => person.id.to_s, :message_id => message.id.to_s, :locale => locale)
+  end
 end
