@@ -22,6 +22,8 @@
   = javascript_include_tag "html5shiv-printshiv"
   
 / CSS
+- with_stylesheet(@current_community) do |stylesheet_url|
+  = stylesheet_link_tag stylesheet_url
 - if @current_community.has_customizations?
   = stylesheet_link_tag @current_community.custom_stylesheet_url
 - else

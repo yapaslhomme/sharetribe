@@ -289,6 +289,14 @@ class Community < ActiveRecord::Base
       community.generate_customization_stylesheet
     end
   end
+
+  def reset_custom_stylesheets!
+    Community.with_customizations.update_all(:stylesheet_url => nil)
+  end
+
+  def needs_stylesheet_recompilation?
+    (custom_color1 || cover_photo_file_name) && !stylesheet_url
+  end
   
   def generate_customization_stylesheet
     if custom_color1 || custom_color2 || cover_photo.present?
