@@ -8,7 +8,8 @@ class ListingImage < ActiveRecord::Base
         :thumb => "120x120#",
         :original => "1600x1600>",
         :big => "800x800>",
-        :email => "150x100#"}
+        :email => "150x100#"},
+        :processors => [:thumbnail, :paperclip_optimizer]
 
   before_save :extract_dimensions
 

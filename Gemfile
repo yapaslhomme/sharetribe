@@ -32,7 +32,7 @@ gem 'sass', "  ~> 3.2.9"
 gem 'database_cleaner'
 gem 'rest-client', '>= 1.6.0'
 gem 'acts-as-taggable-on'
-gem 'paperclip'
+gem 'paperclip', '~>3.5.2'
 gem 'delayed_paperclip'
 gem 'aws-sdk'
 gem "will_paginate"
@@ -66,6 +66,7 @@ gem 'country_select'
 gem 'localized_country_select', '>= 0.9.3'
 gem 'mangopay'
 gem 'braintree'
+gem 'paperclip-optimizer', '~>1.0.0'
 
 #ouisharelabs
 gem 'rdf-turtle'
@@ -78,6 +79,7 @@ end
 group :production do
   gem "airbrake", "~>3.1.12"
   gem 'newrelic_rpm', "~>3.6.2.96"
+  gem "image_optim_bin" # Image optimize binaries for Heroku
 end
 
 group :development do
