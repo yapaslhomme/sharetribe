@@ -1,6 +1,6 @@
 window.ST = window.ST || {};
 
-window.ST.imageUploader = function(listings, containerSelector, uploadSelector, thumbnailSelector, createFromFilePath) {
+window.ST.imageUploader = function(listings, containerSelector, uploadSelector, thumbnailSelector, createFromFilePath, s3options, s3createFromFilePath) {
   var $container = $(containerSelector);
 
   function renderUploader() {
@@ -26,11 +26,22 @@ window.ST.imageUploader = function(listings, containerSelector, uploadSelector, 
       });
     }
 
+    function megabytes(mb) {
+      return mb * 1024 * 1024;
+    }
+
     $(function() {
       $('#fileupload').fileupload({
         dataType: 'json',
-        url: createFromFilePath,
+        url: s3createFromFilePath,
         dropZone: $('#fileupload'),
+        formData: s3options,
+        //             // The maximum width of resized images:
+        imageMaxWidth: 1920,
+            // The maximum height of resized images:
+        imageMaxHeight: 1080,
+        loadImageMaxFileSize: megabytes(50),
+        disableImageResize: false,
         progress: function(e, data) {
           if(data.total === data.loaded) {
             processing();
@@ -41,11 +52,26 @@ window.ST.imageUploader = function(listings, containerSelector, uploadSelector, 
           }
         },
         done: function (e, data) {
-          var result = data.result;
-          $('#listing-image-upload-status').text(result.filename);
-          $("#listing-image-id").val(result.id);
+          debugger;
+          var url = [s3createFromFilePath, data.formData.key.replace("${filename}", data.files[0].name)].join("");
+          $.ajax({
+            type: "POST",
+            url: createFromFilePath,
+            data: {
+              listing_image: {
+                image_url: url
+              }
+            },
+            success: function(result) {
+              updatePreview(result, 2000);
+              $("#listing-image-id").val(result.id);
+            },
+          });
 
-          updatePreview(result, 2000);
+          // var result = data.result;
+          // $('#listing-image-upload-status').text(result.filename);
+
+          // updatePreview(result, 2000);
         },
         fail: function() {
           $(".fileupload-text", $container).text(ST.t("listings.form.images.uploading_failed"));

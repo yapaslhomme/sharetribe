@@ -17,9 +17,9 @@ class ListingImage < ActiveRecord::Base
     process_in_background :image, :processing_image_url => "/assets/listing_image/processing.png"
   end
   validates_attachment_presence :image
-  validates_attachment_size :image, :less_than => 8.megabytes
+  validates_attachment_size :image, :less_than => 50.megabytes
   validates_attachment_content_type :image,
-                                    :content_type => ["image/jpeg", "image/png", "image/gif", "image/pjpeg", "image/x-png"]
+                                    :content_type => ["image/jpeg", "image/png", "image/gif", "image/pjpeg", "image/x-png", "binary/octet-stream"]
                                     #the two last types are sent by IE.
 
   # Retrieves dimensions for image assets
@@ -76,5 +76,15 @@ class ListingImage < ActiveRecord::Base
 
   def self.too_wide?(width, height, aspect_ratio)
     width.to_f / height.to_f > aspect_ratio.to_f
+  end
+
+  def image_url=(url)
+    # AWS.config :access_key_id =>  APP_CONFIG.aws_access_key_id,  :secret_access_key => APP_CONFIG.aws_secret_access_key
+    # s3 = AWS::S3.new
+    # b = s3.buckets.create(APP_CONFIG.s3_bucket_name)
+
+    # bucket.objects["/uploads/2014-03-22T09:33:45+02:00-701c11f42a7bfd1c1e2f135474b9ff7e/Black-Wallpaper-Light-Design-Background.jpg"].read
+
+    self.image = URI.parse(url)
   end
 end

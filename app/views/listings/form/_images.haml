@@ -9,7 +9,7 @@
           .fileupload-text
             = t(".select_file")
           .fileupload-small-text
-      %input#fileupload{type: "file", name: "listing_image[image]"}
+      %input#fileupload{type: "file", name: "file"}
     %img#listing-image-upload-status
 
   %script{type: "text/template", class: "template", id: "thumbnail-image-tmpl"}
@@ -31,6 +31,9 @@
       var upload = $("#new-image-tmpl");
       var thumbnail = $("#thumbnail-image-tmpl");
       var createFromFilePath = '#{@listing.new_record? ? create_from_file_listing_images_path : add_from_file_listing_listing_images_path(@listing.id)}';
+      var s3createFromFilePath = "#{S3Uploader.new.url}"
+
+      debugger;
 
       var listings = #{ @listing.listing_images.map do |listing_image|
         {
@@ -41,7 +44,11 @@
         end.to_json
       }
 
-      ST.imageUploader(listings, container, upload, thumbnail, createFromFilePath);
+      debugger;
+
+      var s3options = #{ S3Uploader.new.fields.to_json }
+
+      ST.imageUploader(listings, container, upload, thumbnail, createFromFilePath, s3options, s3createFromFilePath);
     });
 
 - if run_js_immediately

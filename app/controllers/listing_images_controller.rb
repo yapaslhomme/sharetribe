@@ -41,7 +41,7 @@ class ListingImagesController < ApplicationController
   def new_image(params)
     listing_image = ListingImage.new(params)
 
-    if listing_image.save
+    if listing_image.save!
       render json: {
         id: listing_image.id, 
         removeUrl: listing_image_path(listing_image),
