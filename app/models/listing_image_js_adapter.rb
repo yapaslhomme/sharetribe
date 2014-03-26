@@ -1,8 +1,4 @@
-class ListingImageJSAdapter
-  include ApplicationController::DefaultURLOptions
-  
-  # Due to the way Rails includes the url helpers, this has to be AFTER DefaultURLOptions.
-  include Rails.application.routes.url_helpers
+class ListingImageJSAdapter < JSAdapter
 
   def initialize(listing_image)
     @id = listing_image.id

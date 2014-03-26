@@ -73,7 +73,7 @@ class ListingImagesController < ApplicationController
       unless listing_image.image_downloaded
         listing_image.delay.download_from_url(url)
       end
-      render json: ListingImageJSAdapter.new(listing_image), status: 202
+      render json: ListingImageJSAdapter.new(listing_image).to_json, status: 202
     else
       render json: {:errors => listing_image.errors.full_messages}, status: 400
     end
