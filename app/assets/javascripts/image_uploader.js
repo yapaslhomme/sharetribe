@@ -34,14 +34,16 @@ window.ST.imageUploader = function(listings, opts) {
     }
 
     function updatePreview(result, delay) {
-      $.get(result.processedPollingUrl, function(images_result) {
-        if(images_result.processing) {
+      debugger;
+      $.get(result.urls.status, function(statusResult) {
+        debugger;
+        if(statusResult.processing || !statusResult.downloaded) {
           processing();
           _.delay(function() {
             updatePreview(result, delay + 500);
           }, delay + 500);
         } else {
-          renderThumbnail({thumbnailUrl: images_result.thumb, removeUrl: result.removeUrl});
+          renderThumbnail({thumbnailUrl: statusResult.images.thumb, removeUrl: statusResult.urls.remove});
         }
       });
     }
@@ -127,7 +129,7 @@ window.ST.imageUploader = function(listings, opts) {
   }
 
   function renderThumbnail(listing) {
-    var $thumbnailElement = $(_.template($thumbnail.html(), {thumbnailUrl: listing.thumbnailUrl}));
+    var $thumbnailElement = $(_.template($thumbnail.html(), {thumbnailUrl: listing.images.thumb}));
 
     $('.fileupload-preview-remove-image', $thumbnailElement).click(function(e) {
       e.preventDefault();
@@ -135,7 +137,7 @@ window.ST.imageUploader = function(listings, opts) {
       $(".fileupload-removing").show();
 
       $.ajax({
-        url: listing.removeUrl,
+        url: listing.urls.remove,
         type: 'DELETE',
         success: function() {
           $container.empty();

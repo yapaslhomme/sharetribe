@@ -41,16 +41,9 @@
         originalImageHeight: #{APP_CONFIG.original_image_height}
       }
 
-      var listings = #{ @listing.listing_images.map do |listing_image|
-        {
-          id: @listing.listing_images.first.id,
-          thumbnailUrl: @listing.listing_images.first.image.url(:thumb),
-          removeUrl: listing_image_path(@listing.listing_images.first)
-        }
-        end.to_json
-      }
+      var listingsImages = #{ @listing.listing_images.map { |image| ListingImageJSAdapter.new(image) }.to_json }
 
-      ST.imageUploader(listings, opts);
+      ST.imageUploader(listingsImages, opts);
     });
 
 - if run_js_immediately

@@ -62,10 +62,8 @@ class ListingImagesController < ApplicationController
 
     if !listing_image
       render nothing: true, status: 404
-    elsif !listing_image.image_downloaded || listing_image.image_processing
-      render json: {processing: true}, status: 200
     else
-      render json: {processing: false, thumb: listing_image.image.url(:thumb)}, status: 200
+      render json: ListingImageJSAdapter.new(listing_image).to_json, status: 200
     end
   end
 
@@ -103,11 +101,7 @@ class ListingImagesController < ApplicationController
       unless listing_image.image_downloaded
         listing_image.delay.download_from_url(url)
       end
-      render json: {
-        id: listing_image.id, 
-        removeUrl: listing_image_path(listing_image),
-        processedPollingUrl: image_status_listing_image_path(listing_image)
-      }, status: 202
+      render json: ListingImageJSAdapter.new(listing_image), status: 202
     else
       render json: {:errors => listing_image.errors.full_messages}, status: 400
     end
