@@ -6,7 +6,6 @@ class ListingImagesController < ApplicationController
   before_filter :fetch_image, :only => [:destroy]
   before_filter :"listing_image_authorized?", :only => [:destroy]
 
-  before_filter :fetch_listing, :only => [:add_from_file]
   before_filter :"listing_authorized?", :only => [:add_from_file]
 
   skip_filter :dashboard_only
@@ -18,24 +17,6 @@ class ListingImagesController < ApplicationController
     else
       render json: {:errors => listing_image.errors.full_messages}, status: 400
     end
-  end
-
-  # New listing image while creating a new listing
-  # Create image from uploaded file
-  def create_from_file
-    create_image(params[:listing_image], nil)
-  end
-
-  # New listing image while creating a new listing
-  # Create image from given url
-  def create_from_url
-    url = params[:image_url]
-
-    if !url.present?
-      render json: {:errors => "No image URL provided"}, status: 400
-    end
-
-    create_image({}, url)
   end
 
   # Add new listing image to existing listing
@@ -68,15 +49,6 @@ class ListingImagesController < ApplicationController
   end
 
   private
-
-  # Create new listing
-  def create_image(params, url)
-    listing_image_params = params.merge(
-      author: @current_user
-    )
-
-    new_image(listing_image_params, url)
-  end
 
   def add_image(listing_id, params, url)
     if listing_id
@@ -111,15 +83,16 @@ class ListingImagesController < ApplicationController
     @listing_image = ListingImage.find_by_id(params[:id])
   end
 
-  def fetch_listing
-    @listing = Listing.find_by_id(params[:listing_id])
-  end
-
   def listing_image_authorized?
     @listing_image.authorized?(@current_user)
   end
 
   def listing_authorized?
-    @listing.author == @current_user
+    listing = Listing.find_by_id(params[:listing_id])
+    if listing.nil?
+      true
+    else
+      listing.author == @current_user
+    end
   end
 end

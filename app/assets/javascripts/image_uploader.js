@@ -43,7 +43,7 @@ window.ST.imageUploader = function(listings, opts) {
             updatePreview(result, delay + 500);
           }, delay + 500);
         } else {
-          renderThumbnail({thumbnailUrl: statusResult.images.thumb, removeUrl: statusResult.urls.remove});
+          renderThumbnail(statusResult);
         }
       });
     }

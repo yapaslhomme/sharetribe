@@ -6,6 +6,7 @@ class ListingImageJSAdapter
 
   def initialize(listing_image)
     @id = listing_image.id
+    @listing_id = listing_image.listing_id
     @processing = listing_image.image_processing
     @downloaded = listing_image.image_downloaded
     @images = {
