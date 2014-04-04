@@ -13,6 +13,7 @@ group :assets do
   gem 'coffee-rails', "~> 3.2.2"
   gem 'uglifier'
   gem 'asset_sync'
+  gem 'turbo-sprockets-rails3'
 end
 
 gem 'sass-rails'
