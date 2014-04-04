@@ -7,13 +7,14 @@ gem 'rails', '3.2.17'
 # To use debugger
 # gem 'ruby-debug'
 
-# Gems used only for assets and not required  
-# in production environments by default.  
-group :assets do  
+# Gems used only for assets and not required
+# in production environments by default.
+group :assets do
   gem 'coffee-rails', "~> 3.2.2"
   gem 'uglifier'
   gem 'asset_sync'
-end  
+  gem 'turbo-sprockets-rails3'
+end
 
 gem 'sass-rails'
 gem 'compass-rails'

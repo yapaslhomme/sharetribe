@@ -42,7 +42,11 @@ end
 def deploy(params)
   @destination = params[:destination]
   @branch = `git symbolic-ref HEAD`[/refs\/heads\/(.+)$/,1]
-  
+
+  if `git status --porcelain`.present?
+    raise "You have unstaged or uncommitted changes! Please only deploy from a clean working directory!"
+  end
+
   puts "Deploying from: #{@branch}"
   puts "Deploying to:   #{@destination}"
   puts "Deploy options:"
