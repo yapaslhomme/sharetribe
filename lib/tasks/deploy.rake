@@ -67,12 +67,6 @@ def deploy(params)
   prepare_closed_source_branch
   deploy_to_server
 
-  puts ""
-  puts "#"
-  puts "# Branch is now pushed. You can continue working normally!"
-  puts "#"
-  puts ""
-
   if params[:migrations]
     run_migrations
     restart
