@@ -12,7 +12,7 @@ class ListingImage < ActiveRecord::Base
         :big_cropped => Proc.new { |instance| instance.crop_big },
         :email => "150x100#"}
 
-  before_save :extract_dimensions
+  before_save :set_dimensions!
 
   process_in_background :image, :processing_image_url => "/assets/listing_image/processing.png"
   validates_attachment_size :image, :less_than => APP_CONFIG.max_image_filesize.to_i, :unless => Proc.new {|model| model.image.nil? }
@@ -21,8 +21,22 @@ class ListingImage < ActiveRecord::Base
                                     :content_type => ["image/jpeg", "image/png", "image/gif", "image/pjpeg", "image/x-png"], # the two last types are sent by IE.
                                     :unless => Proc.new {|model| model.image.nil? }
 
+
+  def set_dimensions!
+    # Silently return, if there's no `width` and `height`
+    # Prevents old migrations from crashing
+    return unless self.respond_to?(:width) && self.respond_to?(:height)
+
+    geometry = extract_dimensions
+
+    if geometry
+      self.width = geometry.width.to_i
+      self.height = geometry.height.to_i
+    end
+  end
+
   def crop_big
-    geometry = Paperclip::Geometry.from_file(Paperclip.io_adapters.for(image.queued_for_write[:original]))
+    geometry = extract_dimensions
     max_landscape_crop_percentage = 0.2
     ListingImage.construct_big_style({:width => geometry.width.round, :height => geometry.height.round}, max_landscape_crop_percentage)
   end
@@ -33,10 +47,6 @@ class ListingImage < ActiveRecord::Base
   def extract_dimensions
     return unless image_downloaded?
     tempfile = image.queued_for_write[:original]
-
-    # Silently return, if there's no `width` and `height`
-    # Prevents old migrations from crashing
-    return unless self.respond_to?(:width) && self.respond_to?(:height)
 
     # Works with uploaded files and existing files
     path_or_url = if !tempfile.nil? then
@@ -51,8 +61,6 @@ class ListingImage < ActiveRecord::Base
     end
 
     geometry = Paperclip::Geometry.from_file(path_or_url)
-    self.width = geometry.width.to_i
-    self.height = geometry.height.to_i
   end
 
   def authorized?(user)
