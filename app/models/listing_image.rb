@@ -36,7 +36,7 @@ class ListingImage < ActiveRecord::Base
   end
 
   def crop_big
-    geometry = extract_dimensions
+    geometry = Paperclip::Geometry.from_file(Paperclip.io_adapters.for(image.queued_for_write[:original]))
     max_landscape_crop_percentage = 0.2
     ListingImage.construct_big_style({:width => geometry.width.round, :height => geometry.height.round}, max_landscape_crop_percentage)
   end
@@ -45,7 +45,7 @@ class ListingImage < ActiveRecord::Base
   # @note Do this after resize operations to account for auto-orientation.
   # https://github.com/thoughtbot/paperclip/wiki/Extracting-image-dimensions
   def extract_dimensions
-    return unless image_downloaded?
+    return unless image_ready?
     tempfile = image.queued_for_write[:original]
 
     # Works with uploaded files and existing files
@@ -104,16 +104,12 @@ class ListingImage < ActiveRecord::Base
     dimensions[:height] > dimensions[:width]
   end
 
-  def self.scale_height_down(dimensions, desired_height)
-    if dimensions[:height] > desired_height
-      scale_factor = dimensions[:height] / desired_height.to_f
-      {
-        :width => (dimensions[:width] / scale_factor).round,
-        :height => (dimensions[:height] / scale_factor).round
-      }
-    else
-      dimensions
-    end
+  def self.scale_height(dimensions, desired_height)
+    scale_factor = dimensions[:height] / desired_height.to_f
+    {
+      :width => (dimensions[:width] / scale_factor).round,
+      :height => (dimensions[:height] / scale_factor).round
+    }
   end
 
   # Assumes:
@@ -137,7 +133,7 @@ class ListingImage < ActiveRecord::Base
     if self.portrait? dimensions
       default
     else
-      scaled = self.scale_height_down(dimensions, 440)
+      scaled = self.scale_height(dimensions, 440)
       cropped = self.crop_landscape_sides(scaled, 660, 0.2)
 
       "#{cropped[:width]}x#{cropped[:height]}#"

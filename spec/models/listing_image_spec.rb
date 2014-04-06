@@ -59,12 +59,12 @@ describe ListingImage do
     expect(ListingImage.portrait?({:width => 1000, :height => 1000})).to eq(false)
   end
 
-  it "scales height down and preserves aspect ratio" do
+  it "scales height and preserves aspect ratio" do
     # Up
-    expect(ListingImage.scale_height_down({:width => 300, :height => 200}, 400)).to eq({:width => 300, :height => 200})
+    expect(ListingImage.scale_height({:width => 300, :height => 200}, 400)).to eq({:width => 600, :height => 400})
 
     # Down
-    expect(ListingImage.scale_height_down({:width => 1200, :height => 800}, 400)).to eq({:width => 600, :height => 400})
+    expect(ListingImage.scale_height({:width => 1200, :height => 800}, 400)).to eq({:width => 600, :height => 400})
   end
 
   it "returns image with slides cropped" do
@@ -85,12 +85,12 @@ describe ListingImage do
     expect(ListingImage.construct_big_style({:width => 600, :height => 1200}, 0.2)).to eq "660x440>"
 
     # Landscape, crop need 0.1, max 0.2
-    expect(ListingImage.construct_big_style({:width => 666, :height => 400}, 0.2)).to eq "660x400#"
+    expect(ListingImage.construct_big_style({:width => 666, :height => 400}, 0.2)).to eq "660x440#"
 
     # Landscape, crop need 0.2, max 0.2
     expect(ListingImage.construct_big_style({:width => 750, :height => 440}, 0.2)).to eq "660x440#"
 
     # Landscape, crop need 0.5, max 0.2
-    expect(ListingImage.construct_big_style({:width => 1200, :height => 400}, 0.2)).to eq "960x400#"
+    expect(ListingImage.construct_big_style({:width => 1200, :height => 400}, 0.2)).to eq "1056x440#"
   end
 end
