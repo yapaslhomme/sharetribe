@@ -154,6 +154,16 @@ class Listing < ActiveRecord::Base
   end
 
   def self.find_with(params, current_user=nil, current_community=nil, per_page=100, page=1)
+
+    max_matches = 1000 # Sphinx default
+    if (per_page.to_i * page.to_i > max_matches)
+      # This is probably Google Bot.
+      # Don't throw error, just return empty array.
+      # If we really want to return more than 1000 first hits, then increase the `max_matches`
+      # configuration value
+      return []
+    end
+
     params ||= {}  # Set params to empty hash if it's nil
     joined_tables = []
 

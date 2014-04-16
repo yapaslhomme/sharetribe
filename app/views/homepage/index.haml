@@ -109,7 +109,7 @@
 
     - main_container_class = if @category_menu_enabled then "col-9" else "col-12" end
     %div{:class => main_container_class}
-      - if @listings.total_entries > 0
+      - if @listings.size > 0
         - if @view_type.eql?("map")
           .home-map
             = render :partial => "map"
@@ -127,7 +127,7 @@
             = pageless(@listings.total_pages, item_container, request.fullpath, t('.loading_more_content'))
       - else
         .home-no-listings
-          - if params[:q] || params[:category] || params[:share_type] # Some filter in use
+          - if params[:q] || params[:category] || params[:share_type] || params[:page] # Some filter in use
             = t(".no_listings_with_your_search_criteria")
           - else
             = t(".no_listings_notification", :add_listing_link => link_to(t(".add_listing_link_text"), new_listing_path)).html_safe
