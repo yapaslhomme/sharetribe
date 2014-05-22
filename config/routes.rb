@@ -67,6 +67,7 @@ Kassi::Application.routes.draw do
             get :received
             get :sent
             get :notifications
+            get :free, :to => :new_free
           end
           member do
             get :accept
@@ -206,6 +207,13 @@ Kassi::Application.routes.draw do
         get :locations_json
         get :verification_required
       end
+      resource :reply, :controller => :conversations do
+        collection do
+          get :free, :to => :new_free
+          get :preauthorize, :to => :new_preauthorize
+          get :postpay, :to => :new_postpay
+        end
+      end
       resources :comments
       resources :listing_images do
         collection do
@@ -272,7 +280,6 @@ Kassi::Application.routes.draw do
   match "/:locale/offers" => "listings#offers", :as => :offers
   match "/:locale/requests" => "listings#requests", :as => :requests
   match "/:locale/people/:person_id/messages/:conversation_type/:id" => "conversations#show", :as => :single_conversation
-  match "/:locale/listings/:id/reply" => "conversations#new", :as => :reply_to_listing
   match "/:locale/listings/new/:type/:category" => "listings#new", :as => :new_request_category
   match "/:locale/listings/new/:type" => "listings#new", :as => :new_request
   match "/listings/new/:type" => "listings#new", :as => :new_request_without_locale # needed for some emails, where locale part is already set

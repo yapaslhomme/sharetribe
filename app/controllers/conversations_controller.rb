@@ -1,10 +1,10 @@
 class ConversationsController < ApplicationController
 
-  before_filter :only => [ :new, :create ] do |controller|
+  before_filter :only => [ :new_free, :new_preauthorize, :new_postpay, :create ] do |controller|
     controller.ensure_logged_in t("layouts.notifications.you_must_log_in_to_send_a_message")
   end
 
-  before_filter :except => [ :new, :create ] do |controller|
+  before_filter :except => [ :new_free, :new_preauthorize, :new_postpay, :create ] do |controller|
     controller.ensure_logged_in t("layouts.notifications.you_must_log_in_to_view_your_inbox")
   end
 
@@ -14,10 +14,10 @@ class ConversationsController < ApplicationController
 
   before_filter :ensure_authorized_to_view_message, :only => [ :show, :accept, :reject, :confirm, :cancel, :acceptance, :confirmation ]
   before_filter :save_current_inbox_path, :only => [ :received, :sent, :show ]
-  before_filter :check_conversation_type, :only => [ :new, :create ]
-  before_filter :ensure_listing_is_open, :only => [ :new, :create ]
-  before_filter :ensure_listing_author_is_not_current_user, :only => [ :new, :create ]
-  before_filter :ensure_authorized_to_reply, :only => [ :new, :create ]
+  before_filter :check_conversation_type, :only => [ :new_free, :new_preauthorize, :new_postpay, :create ]
+  before_filter :ensure_listing_is_open, :only => [ :new_free, :new_preauthorize, :new_postpay, :create ]
+  before_filter :ensure_listing_author_is_not_current_user, :only => [ :new_free, :new_preauthorize, :new_postpay, :create ]
+  before_filter :ensure_authorized_to_reply, :only => [ :new_free, :new_preauthorize, :new_postpay, :create ]
   before_filter :ensure_authorized_to_accept, :only => [ :accept, :reject, :acceptance ]
   before_filter :ensure_authorized_to_cancel, :only => [ :confirm, :cancel, :canfirmation ]
 
@@ -52,7 +52,23 @@ class ConversationsController < ApplicationController
     @other_party = @conversation.other_party(@current_user)
   end
 
-  def new
+  def new_free
+    @conversation = Conversation.new
+    @conversation.messages.build
+    @conversation.participants.build
+    @target_person ||= @listing.author
+    render :action => :new, :layout => "application"
+  end
+
+  def new_preauthorize
+    @conversation = Conversation.new
+    @conversation.messages.build
+    @conversation.participants.build
+    @target_person ||= @listing.author
+    render :action => :new, :layout => "application"
+  end
+
+  def new_postpay
     @conversation = Conversation.new
     @conversation.messages.build
     @conversation.participants.build
@@ -174,7 +190,7 @@ class ConversationsController < ApplicationController
 
   def ensure_listing_is_open
     unless @target_person
-      @listing = params[:conversation] ? Listing.find(params[:conversation][:listing_id]) : Listing.find(params[:id])
+      @listing = params[:conversation] ? Listing.find(params[:conversation][:listing_id]) : Listing.find(params[:id] || params[:listing_id])
       if @listing.closed?
         flash[:error] = t("layouts.notifications.you_cannot_reply_to_a_closed_#{@listing.direction}")
         redirect_to (session[:return_to_content] || root)
