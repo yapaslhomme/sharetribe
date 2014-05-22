@@ -4,19 +4,25 @@ class TransactionProcess
   state :not_started, initial: true
   state :free
   state :pending
+  state :preauthorized
   state :accepted
   state :rejected
   state :paid
   state :confirmed
   state :canceled
 
-  transition from: :not_started,               to: [:free, :pending]
+  transition from: :not_started,               to: [:free, :pending, :preauthorized]
   transition from: :pending,                   to: [:accepted, :rejected]
+  transition from: :preauthorized,             to: [:paid, :rejected]
   transition from: :accepted,                  to: [:paid, :canceled]
   transition from: :paid,                      to: [:confirmed, :canceled]
 
   guard_transition(to: :pending) do |conversation|
     conversation.requires_payment?(conversation.community)
+  end
+
+  guard_transition(to: :preauthorized) do |conversation|
+    # TODO How to make sure preauthorization process is in use
   end
 
   after_transition(to: :accepted) do |conversation|
