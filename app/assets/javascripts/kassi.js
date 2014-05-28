@@ -1,6 +1,10 @@
 // Custom Javascript functions for Sharetribe
 // Add custom validation methods
 
+function test() {
+  return "this is a test"
+}
+
 function add_validator_methods() {
 
   /**
