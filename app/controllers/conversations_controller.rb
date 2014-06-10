@@ -45,17 +45,15 @@ class ConversationsController < ApplicationController
   end
 
   def new
-    @conversation = Conversation.new
-    @conversation.messages.build
-    @conversation.participants.build
-    @target_person ||= @listing.author
+    @conversation = new_conversation(@listing)
     render :action => :new, :layout => "application"
   end
 
   def create
     params[:conversation][:status] ||= "pending"
+    binding.pry
 
-    @conversation = Conversation.new(params[:conversation])
+    @conversation = new_conversation(@listing, params[:conversation])
     if @conversation.save
       flash[:notice] = t("layouts.notifications.message_sent")
       Delayed::Job.enqueue(MessageSentJob.new(@conversation.messages.last.id, @current_community.id))
@@ -134,6 +132,17 @@ class ConversationsController < ApplicationController
   end
 
   private
+
+  def new_conversation(listing, params = {})
+
+    conversation = Conversation.new(params.merge(community: @current_community, listing: listing))
+    binding.pry
+    conversation.messages.build
+    conversation.participants << conversation.participations.build(person: @current_user, is_read: true, last_sent_at: DateTime.now).person
+    conversation.participants << conversation.participations.build(person: @listing.author, is_read: false, last_received_at: DateTime.now).person
+    conversation.other_party(@current_user)
+    conversation
+  end
 
   # Saves current path so that the user can be
   # redirected back to that path when needed.
