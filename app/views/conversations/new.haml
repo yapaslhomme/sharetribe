@@ -1,49 +1,59 @@
 - content_for :javascript do
   initialize_send_message_form('#{I18n.locale}', '#{free_conversation? ? "free" : Listing.opposite_type(@listing.direction)}');
 
-- binding.pry
 - other_party = @conversation.other_party(@current_user)
-- title = Maybe(@conversation).listing.title
+
+- if @conversation.listing
+  - listing_title = @conversation.listing.title
+  - short_title = listing_title
+  - long_title = if @conversation.listing.author != @current_user
+    - t("conversations.show.listing_by", listing_title: link_to(listing_title, @conversation.listing), listing_author_name: link_to(@conversation.author.name, @conversation.author)).html_safe
+  - else
+    - link_to(listing_title, @conversation.listing)
+- else
+  - long_title = t("conversations.show.conversation_with", person: link_to(other_party.name, other_party)).html_safe
+  - short_title = t("conversations.show.conversation_with", person: link_to(other_party.name, other_party)).html_safe
 
 .centered-section-wide
   .message-avatar-padding
-    .row
+    .row.without-margin
       .col-12
-        %h2
-          = title.map { |title| link_to title, @conversation.listing }.or_else { t(".conversation_with", person: link_to(other_party.name, other_party)).html_safe }
+        %h2= long_title
 
-        %p
-          - if @conversation.status.eql?("free")
+        - unless free_conversation?
+          = render :partial => "details"
+
+
+
+  .message-avatar-padding.message-reply-form
+    = form_for @conversation, :url => person_messages_path(:person_id => @current_user.id) do |form|
+      = fields_for "conversation[message_attributes]", Message.new do |message_form|
+        .row
+          .col-12
+            - if @conversation.status.eql?("free")
+              = message_form.label :content, t(".send_message_to_user", :person => other_party.given_name_or_username)
+            - else
+              = message_form.label :content, t(".optional_message", :person => other_party.given_name_or_username)
+            = message_form.text_area :content, :class => "reply_form_text_area"
+            = message_form.hidden_field :sender_id, :value => @current_user.id
+
+      - unless free_conversation?
+        .row
+          .col-12
+            = t(".author_has_to_accept_request", author_name: link_to(@conversation.author.name, @conversation.author)).html_safe
+
+      - if @listing
+        = form.hidden_field :listing_id, :value => @listing.id
+
+      - if free_conversation?
+        = form.hidden_field :status, :value => "free"
+
+      .row
+        .col-12
+          - if free_conversation?
+            = form.button t(".send_message")
           - else
-            = t(".requested_by", requester_name: link_to(@conversation.starter.name, @conversation.starter)).html_safe
-
-        - Maybe(@conversation).listing.each do |listing|
-          - price = Maybe(listing).price.or_else(nil)
-          - sum = Maybe(@conversation).payment.total_sum.or_else(nil)
-
-          - if sum
-            %p.message-price
-              = t(".sum", sum: humanized_money_with_symbol(sum))
-          - elsif price
-            %p.message-sum
-              = t(".price", price: humanized_money_with_symbol(price))
-
-              - if listing.quantity.present?
-                = "/ #{listing.quantity}"
-
-              - if @current_community.vat
-                %span.message-sum-vat
-                  = t(".price_excludes_vat")
-
-          - if @conversation.status.eql?("free")
-            - unless listing.author == @current_user
-              = link_to reply_to_listing_path(:id => listing.id.to_s), :class => "message-book-button" do
-                .content
-                  = listing.transaction_type.action_button_label(I18n.locale)
-
-          - else
-            %div{:id => "conversation_#{@conversation.id.to_s}_status"}
-              = render :partial => "status", :locals => { :conversation => @conversation }
+            = form.button @listing.transaction_type.action_button_label(I18n.locale)
 
 
 / #new_message_form.centered-section

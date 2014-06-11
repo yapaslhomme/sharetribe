@@ -12,8 +12,6 @@ class Conversation < ActiveRecord::Base
 
   has_one :payment
 
-  VALID_STATUSES = ["pending", "accepted", "rejected", "paid", "free", "confirmed", "canceled"]
-
   # Delegate methods to state machine
   delegate :can_transition_to?, :transition_to!, :transition_to, :current_state,
            to: :state_machine

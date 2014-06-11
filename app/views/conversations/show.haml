@@ -2,45 +2,34 @@
   initialize_reply_form('#{I18n.locale}');
 
 - other_party = @conversation.other_party(@current_user)
-- title = Maybe(@conversation).listing.title
+
+- if @conversation.listing
+  - listing_title = @conversation.listing.title
+  - short_title = listing_title
+  - long_title = if @conversation.listing.author != @current_user
+    - t(".listing_by", listing_title: link_to(listing_title, @conversation.listing), listing_author_name: link_to(@conversation.author.name, @conversation.author)).html_safe
+  - else
+    - link_to(listing_title, @conversation.listing)
+- else
+  - long_title = t(".conversation_with", person: link_to(other_party.name, other_party)).html_safe
+  - short_title = t(".conversation_with", person: link_to(other_party.name, other_party)).html_safe
 
 - content_for :title_header do
   %h1
     = link_to received_person_messages_path(:person_id => @current_user.id) do
       = t("layouts.no_tribe.inbox")
     |
-    = title.or_else { t(".conversation_with", person: link_to(other_party.name, other_party)).html_safe }
+    = short_title
 
 .centered-section-wide
   .message-avatar-padding
     .row
       .col-12
-        %h2
-          = title.map { |title| link_to title, @conversation.listing }.or_else { t(".conversation_with", person: link_to(other_party.name, other_party)).html_safe }
+        %h2= long_title
 
-        %p
-          - if @conversation.status.eql?("free")
-          - else
-            = t(".requested_by", requester_name: link_to(@conversation.starter.name, @conversation.starter)).html_safe
+        = render :partial => "details"
 
-        - Maybe(@conversation).listing.each do |listing|
-          - price = Maybe(listing).price.or_else(nil)
-          - sum = Maybe(@conversation).payment.total_sum.or_else(nil)
-
-          - if sum
-            %p.message-price
-              = t(".sum", sum: humanized_money_with_symbol(sum))
-          - elsif price
-            %p.message-sum
-              = t(".price", price: humanized_money_with_symbol(price))
-
-              - if listing.quantity.present?
-                = "/ #{listing.quantity}"
-
-              - if @current_community.vat
-                %span.message-sum-vat
-                  = t(".price_excludes_vat")
-
+        - Maybe(@conversation.listing).each do |listing|
           - if @conversation.status.eql?("free")
             - unless listing.author == @current_user
               = link_to reply_to_listing_path(:id => listing.id.to_s), :class => "message-book-button" do

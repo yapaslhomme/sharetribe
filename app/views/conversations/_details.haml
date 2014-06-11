@@ -1,0 +1,23 @@
+%p
+  - if @conversation.status.eql?("free")
+  - else
+    - if @conversation.starter != @current_user
+      = t("conversations.show.requested_by", requester_name: link_to(@conversation.starter.name, @conversation.starter)).html_safe
+
+- Maybe(@conversation).listing.each do |listing|
+  - price = Maybe(listing).price.or_else(nil)
+  - sum = Maybe(@conversation).payment.total_sum.or_else(nil)
+
+  - if sum
+    %p.message-price
+      = t("conversations.show.sum", sum: humanized_money_with_symbol(sum))
+  - elsif price
+    %p.message-sum
+      = t("conversations.show.price", price: humanized_money_with_symbol(price))
+
+      - if listing.quantity.present?
+        = "/ #{listing.quantity}"
+
+      - if @current_community.vat
+        %span.message-sum-vat
+          = t("conversations.show.price_excludes_vat")

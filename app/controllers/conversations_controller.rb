@@ -50,11 +50,11 @@ class ConversationsController < ApplicationController
   end
 
   def create
-    params[:conversation][:status] ||= "pending"
-    binding.pry
-
-    @conversation = new_conversation(@listing, params[:conversation])
+    status = params[:conversation][:status] || "pending"
+    params[:conversation].delete(:status)
+    @conversation = create_conversation(@listing, params[:conversation])
     if @conversation.save
+      @conversation.status = status
       flash[:notice] = t("layouts.notifications.message_sent")
       Delayed::Job.enqueue(MessageSentJob.new(@conversation.messages.last.id, @current_community.id))
       if params[:profile_message]
@@ -134,13 +134,42 @@ class ConversationsController < ApplicationController
   private
 
   def new_conversation(listing, params = {})
-
     conversation = Conversation.new(params.merge(community: @current_community, listing: listing))
-    binding.pry
-    conversation.messages.build
-    conversation.participants << conversation.participations.build(person: @current_user, is_read: true, last_sent_at: DateTime.now).person
-    conversation.participants << conversation.participations.build(person: @listing.author, is_read: false, last_received_at: DateTime.now).person
-    conversation.other_party(@current_user)
+
+    conversation.participants << conversation.participations.build({
+      person: @current_user,
+      is_starter: true,
+      is_read: true,
+      last_sent_at: DateTime.now
+    }).person
+
+    conversation.participants << conversation.participations.build({
+      person: @listing.author,
+      is_starter: false,
+      is_read: false,
+      last_received_at: DateTime.now
+    }).person
+
+    conversation
+  end
+
+  def create_conversation(listing, params = {})
+    conversation = Conversation.new(params.merge(community: @current_community, listing: listing))
+
+    conversation.participations.build({
+      person: @current_user,
+      is_starter: true,
+      is_read: true,
+      last_sent_at: DateTime.now
+    }).person
+
+    conversation.participations.build({
+      person: @listing.author,
+      is_starter: false,
+      is_read: false,
+      last_received_at: DateTime.now
+    }).person
+
     conversation
   end
 
@@ -174,13 +203,20 @@ class ConversationsController < ApplicationController
   end
 
   def ensure_listing_is_open
-    unless @target_person
-      @listing = params[:conversation] ? Listing.find(params[:conversation][:listing_id]) : Listing.find(params[:id])
-      if @listing.closed?
-        flash[:error] = t("layouts.notifications.you_cannot_reply_to_a_closed_#{@listing.direction}")
-        redirect_to (session[:return_to_content] || root)
-      end
+    @listing = params[:conversation] ? Listing.find(params[:conversation][:listing_id]) : Listing.find(params[:id])
+
+    if @listing && @listing.closed?
+      flash[:error] = t("layouts.notifications.you_cannot_reply_to_a_closed_#{@listing.direction}")
+      redirect_to (session[:return_to_content] || root)
     end
+
+    # unless @target_person
+    #   @listing = params[:conversation] ? Listing.find(params[:conversation][:listing_id]) : Listing.find(params[:id])
+    #   if @listing.closed?
+    #     flash[:error] = t("layouts.notifications.you_cannot_reply_to_a_closed_#{@listing.direction}")
+    #     redirect_to (session[:return_to_content] || root)
+    #   end
+    # end
   end
 
   def ensure_listing_author_is_not_current_user

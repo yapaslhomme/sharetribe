@@ -429,7 +429,10 @@ en:
       you_will_get_notified: "You will get an email notification when %{person} answers you."
       title: Title
       send_message_to_user: "Send message to %{person}"
+      author_has_to_accept_request: "%{author_name} needs to accept the request before you can pay"
+      optional_message: "Optional message"
     show:
+      listing_by: "%{listing_title} by %{listing_author_name}"
       in_response_to_listing: "about listing"
       message_sent_by: "Message sent by"
       message_sent_to: "Message sent to"
