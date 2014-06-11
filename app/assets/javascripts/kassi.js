@@ -675,11 +675,11 @@ function initialize_new_listing_form(fileDefaultText,
 function initialize_send_message_form(locale, message_type) {
   auto_resize_text_areas("text_area");
   $('textarea').focus();
-  var form_id = "#new_conversation";
+  var form_id = "#new_listing_conversation";
   $(form_id).validate({
     rules: {
-      "conversation[title]": {required: true, minlength: 1, maxlength: 120},
-      "conversation[message_attributes][content]": {required: true, minlength: 1}
+      "listing_conversation[title]": {required: true, minlength: 1, maxlength: 120},
+      "listing_conversation[message_attributes][content]": {required: true, minlength: 1}
     },
     submitHandler: function(form) {
       disable_and_submit(form_id, form, "false", locale);
