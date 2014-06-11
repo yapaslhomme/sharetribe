@@ -1,6 +1,6 @@
 .conversation-price.accept-price{:class => (@action.eql?("accept") ? "" : "hidden")}
   %h3.invoice-title= t("payments.form.invoice")
-  = fields_for "conversation[payment_attributes]", @payment do |payment_form|
+  = fields_for "listing_conversation[payment_attributes]", @payment do |payment_form|
     = payment_form.hidden_field :community_id, :value => @current_community.id
     = payment_form.hidden_field :currency, :value => @conversation.listing.currency
 

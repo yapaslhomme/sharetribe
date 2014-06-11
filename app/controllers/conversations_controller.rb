@@ -55,7 +55,12 @@ class ConversationsController < ApplicationController
   def create
     params[:conversation][:status] ||= "pending"
 
-    @conversation = Conversation.new(params[:conversation])
+    #FIXME
+    @conversation = if params[:conversation][:status] == "free"
+      Conversation.new(params[:conversation].except(:status))
+    else
+      ListingConversation.new(params[:conversation])
+    end
     if @conversation.save
       flash[:notice] = t("layouts.notifications.message_sent")
       Delayed::Job.enqueue(MessageSentJob.new(@conversation.messages.last.id, @current_community.id))
@@ -83,11 +88,11 @@ class ConversationsController < ApplicationController
 
   # Handles accept and reject forms
   def acceptance
-    status = params[:conversation][:status]
+    status = params[:listing_conversation][:status]
 
     # Update first everything else than the status, so that the payment is in correct
     # state before the status change callback is called
-    if @conversation.update_attributes(params[:conversation].except(:status))
+    if @conversation.update_attributes(params[:listing_conversation].except(:status))
       @conversation.status = status
 
       close_listing = params[:close_listing]
@@ -113,11 +118,12 @@ class ConversationsController < ApplicationController
   # Handles confirm and cancel forms
   def confirmation
     # Check if can be accepted or canceled
-    cancel = (params[:conversation] && params[:conversation][:status] == "canceled")
+    cancel = (params[:conversation] && params[:listing_conversation][:status] == "canceled")
     unless current_user?(@conversation.requester) && (cancel ? @conversation.can_be_canceled? : @conversation.can_be_confirmed?)
       redirect_to person_message_path(:person_id => @current_user.id, :message_id => @conversation.id) and return
     end
-    if @conversation.update_attributes(params[:conversation])
+    if @conversation.update_attributes(params[:conversation].except(:status))
+      @conversation.status = params[:listing_conversation][:status]
       confirmation = ConfirmConversation.new(@conversation, @current_user, @current_community)
       confirmation.update_participation(params[:give_feedback])
 
@@ -143,6 +149,8 @@ class ConversationsController < ApplicationController
 
   def ensure_authorized_to_view_message
     @conversation = Conversation.find(params[:id])
+    #FIXME
+    @listing_conversation = @conversation if @conversation.is_a?(ListingConversation)
     unless @conversation.participants.include?(@current_user)
       flash[:error] = t("layouts.notifications.you_are_not_authorized_to_view_this_content")
       redirect_to root and return

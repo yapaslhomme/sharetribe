@@ -2,28 +2,41 @@
   initialize_reply_form('#{I18n.locale}');
 
 - other_party = @conversation.other_party(@current_user)
-- title = Maybe(@conversation).listing.title
+
+-#FIXME
+- if @conversation.is_a?(ListingConversation)
+  - title = @conversation.listing.title
+- else
+  - title = t(".conversation_with", person: link_to(other_party.name, other_party)).html_safe
 
 - content_for :title_header do
   %h1
     = link_to received_person_messages_path(:person_id => @current_user.id) do
       = t("layouts.no_tribe.inbox")
     |
-    = title.or_else { t(".conversation_with", person: link_to(other_party.name, other_party)).html_safe }
+    = title
 
 .centered-section-wide
   .message-avatar-padding
     .row
       .col-12
         %h2
-          = title.map { |title| link_to title, @conversation.listing }.or_else { t(".conversation_with", person: link_to(other_party.name, other_party)).html_safe }
+          -#FIXME
+          - if @conversation.is_a?(ListingConversation)
+            = link_to @conversation.listing.title, @conversation.listing
+          - else
+            = t(".conversation_with", person: link_to(other_party.name, other_party)).html_safe
 
         %p
-          - if @conversation.status.eql?("free")
-          - else
-            = t(".requested_by", requester_name: link_to(@conversation.starter.name, @conversation.starter)).html_safe
+          -#FIXME
+          - if @conversation.is_a?(ListingConversation)
+            - if @conversation.status.eql?("free")
+            - else
+              = t(".requested_by", requester_name: link_to(@conversation.starter.name, @conversation.starter)).html_safe
 
-        - Maybe(@conversation).listing.each do |listing|
+        -#FIXME
+        - if @conversation.is_a?(ListingConversation)
+          - listing = @conversation.listing
           - price = Maybe(listing).price.or_else(nil)
           - sum = Maybe(@conversation).payment.total_sum.or_else(nil)
 
