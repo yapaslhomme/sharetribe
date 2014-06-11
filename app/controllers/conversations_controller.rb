@@ -45,7 +45,7 @@ class ConversationsController < ApplicationController
   end
 
   def new
-    @conversation = Conversation.new
+    @conversation = ListingConversation.new
     @conversation.messages.build
     @conversation.participants.build
     @target_person ||= @listing.author
@@ -53,14 +53,10 @@ class ConversationsController < ApplicationController
   end
 
   def create
-    params[:conversation][:status] ||= "pending"
+    params[:listing_conversation][:status] ||= "pending"
 
     #FIXME
-    @conversation = if params[:conversation][:status] == "free"
-      Conversation.new(params[:conversation].except(:status))
-    else
-      ListingConversation.new(params[:conversation])
-    end
+    @conversation = ListingConversation.new(params[:listing_conversation])
     if @conversation.save
       flash[:notice] = t("layouts.notifications.message_sent")
       Delayed::Job.enqueue(MessageSentJob.new(@conversation.messages.last.id, @current_community.id))
@@ -118,11 +114,11 @@ class ConversationsController < ApplicationController
   # Handles confirm and cancel forms
   def confirmation
     # Check if can be accepted or canceled
-    cancel = (params[:conversation] && params[:listing_conversation][:status] == "canceled")
+    cancel = (params[:listing_conversation] && params[:listing_conversation][:status] == "canceled")
     unless current_user?(@conversation.requester) && (cancel ? @conversation.can_be_canceled? : @conversation.can_be_confirmed?)
       redirect_to person_message_path(:person_id => @current_user.id, :message_id => @conversation.id) and return
     end
-    if @conversation.update_attributes(params[:conversation].except(:status))
+    if @conversation.update_attributes(params[:listing_conversation].except(:status))
       @conversation.status = params[:listing_conversation][:status]
       confirmation = ConfirmConversation.new(@conversation, @current_user, @current_community)
       confirmation.update_participation(params[:give_feedback])
@@ -174,7 +170,7 @@ class ConversationsController < ApplicationController
 
   def ensure_listing_is_open
     unless @target_person
-      @listing = params[:conversation] ? Listing.find(params[:conversation][:listing_id]) : Listing.find(params[:id])
+      @listing = params[:listing_conversation] ? Listing.find(params[:listing_conversation][:listing_id]) : Listing.find(params[:id])
       if @listing.closed?
         flash[:error] = t("layouts.notifications.you_cannot_reply_to_a_closed_#{@listing.direction}")
         redirect_to (session[:return_to_content] || root)

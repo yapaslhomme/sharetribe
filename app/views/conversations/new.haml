@@ -17,13 +17,13 @@
       = t(".you_will_get_notified_of_acceptance", :person => @target_person.given_name_or_username)
   = form_for @conversation, :url => person_messages_path(:person_id => @current_user.id) do |form|
 
-    = fields_for "conversation[message_attributes]", Message.new do |message_form|
+    = fields_for "listing_conversation[message_attributes]", Message.new do |message_form|
       = message_form.label :content, t('.message')
       = message_form.text_area :content, :class => "text_area"
       = message_form.hidden_field :sender_id, :value => @current_user.id
 
-    = hidden_field_tag "conversation[conversation_participants][#{@current_user.id}]", true
-    = hidden_field_tag "conversation[conversation_participants][#{@target_person.id}]", false
+    = hidden_field_tag "listing_conversation[conversation_participants][#{@current_user.id}]", true
+    = hidden_field_tag "listing_conversation[conversation_participants][#{@target_person.id}]", false
     - if @listing
       = form.hidden_field :listing_id, :value => @listing.id
     - if free_conversation?
