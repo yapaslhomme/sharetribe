@@ -53,10 +53,14 @@ class ConversationsController < ApplicationController
   end
 
   def create
-    params[:listing_conversation][:status] ||= "pending"
-
     #FIXME
-    @conversation = ListingConversation.new(params[:listing_conversation])
+    if params[:listing_conversation][:listing_id]
+      params[:listing_conversation][:status] ||= "pending"
+      @conversation = ListingConversation.new(params[:listing_conversation])
+    else
+      #FIXME Remove status
+      @conversation = Conversation.new(params[:listing_conversation].except(:status))
+    end
     if @conversation.save
       flash[:notice] = t("layouts.notifications.message_sent")
       Delayed::Job.enqueue(MessageSentJob.new(@conversation.messages.last.id, @current_community.id))
@@ -159,7 +163,8 @@ class ConversationsController < ApplicationController
   # save the listing info.
   def check_conversation_type
     if params[:profile_message] || params[:comment_message]
-      if params[:conversation]
+      #FIXME Should be :conversation here
+      if params[:listing_conversation]
         @target_person = Person.find(params[:target_person_id])
       else
         @target_person = Person.find(params[:person_id])
